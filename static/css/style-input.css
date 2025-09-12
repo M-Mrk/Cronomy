@@ -1,0 +1,199 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* DaisyUI theme configuration for Tailwind v4 */
+[data-theme="cronomy"] {
+  --primary: oklch(from rgb(var(--user-primary)) l c h);
+  --secondary: oklch(from rgb(var(--user-secondary)) l c h);
+  --accent: oklch(from rgb(var(--user-secondary)) calc(l + 0.10) calc(c * 1.20) h);
+  --neutral: oklch(from rgb(var(--user-base)) calc(l - 0.20) c h);
+  --base-100: oklch(from rgb(var(--user-base)) l c h);
+  --base-200: oklch(from rgb(var(--user-base)) calc(l - 0.05) c h);
+  --base-300: oklch(from rgb(var(--user-base)) calc(l - 0.10) c h);
+  --info: oklch(65% 0.15 230);
+  --success: oklch(from rgb(var(--user-secondary)) l c h);
+  --warning: oklch(80% 0.15 85);
+  --error: oklch(65% 0.20 25);
+
+  /* Text colors that adapt to your theme */
+  --base-content: oklch(from rgb(var(--user-text)) l c h);
+  --primary-content: oklch(100% 0 0);
+  --secondary-content: oklch(100% 0 0);
+  --accent-content: oklch(100% 0 0);
+  --neutral-content: oklch(from rgb(var(--user-base)) calc(l + 0.40) c h);
+  --info-content: oklch(100% 0 0);
+  --success-content: oklch(100% 0 0);
+  --warning-content: oklch(0% 0 0);
+  --error-content: oklch(100% 0 0);
+}
+
+/* Dynamic theme variables */
+:root {
+  --user-base: 248 250 252;
+  --user-primary: 59 130 246;
+  --user-secondary: 16 185 129;
+  --user-text: 0 0 0;
+}
+
+@theme {
+  /* Base colors: +0.05, +0.03, base, -0.10, -0.20, -0.40 */
+  --color-base-50: oklch(from rgb(var(--user-base)) calc(l + 0.05) c h);
+  --color-base-100: oklch(from rgb(var(--user-base)) calc(l + 0.03) c h);
+  --color-base-500: rgb(var(--user-base));
+  --color-base-600: oklch(from rgb(var(--user-base)) calc(l - 0.10) c h);
+  --color-base-700: oklch(from rgb(var(--user-base)) calc(l - 0.20) c h);
+  --color-base-900: oklch(from rgb(var(--user-base)) calc(l - 0.40) c h);
+
+  /* Primary colors: +0.30/×0.50, +0.25/×0.60, base, -0.30 */
+  --color-primary-50: oklch(from rgb(var(--user-primary)) calc(l + 0.30) calc(c * 0.50) h);
+  --color-primary-100: oklch(from rgb(var(--user-primary)) calc(l + 0.25) calc(c * 0.60) h);
+  --color-primary-500: rgb(var(--user-primary));
+  --color-primary-900: oklch(from rgb(var(--user-primary)) calc(l - 0.30) c h);
+
+  --color-secondary-500: rgb(var(--user-secondary));
+
+  /* animations */
+  /* Variables */
+  --fly-in-distance: 15vh;
+  --fly-out-distance: 30vh;
+
+  /* Fly in */
+  --animate-fly-in-top: fly-in-top-animation 1s ease-in-out;
+  --animate-fly-in-bottom: fly-in-bottom-animation 1s ease-in-out;
+  --animate-fly-in-left: fly-in-left-animation 1s ease-in-out;
+  --animate-fly-in-right: fly-in-right-animation 1s ease-in-out;
+
+  @keyframes fly-in-top-animation {
+    0% {
+      opacity: 0;
+      transform: translateY(calc(-1 * var(--fly-in-distance)));
+    }
+
+    75% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fly-in-bottom-animation {
+    0% {
+      opacity: 0;
+      transform: translateY(var(--fly-in-distance));
+    }
+
+    75% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fly-in-left-animation {
+    0% {
+      opacity: 0;
+      transform: translateX(calc(-1 * var(--fly-in-distance)));
+    }
+
+    75% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fly-in-right-animation {
+    0% {
+      opacity: 0;
+      transform: translateX(var(--fly-in-distance));
+    }
+
+    75% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Fly out */
+  --animate-fly-out-right: fly-out-right 0.5s ease-in forwards;
+  --animate-fly-out-left: fly-out-left 0.5s ease-in forwards;
+  --animate-fly-out-top: fly-out-top 0.5s ease-in forwards;
+  --animate-fly-out-bottom: fly-out-bottom 0.5s ease-in forwards;
+  
+  @keyframes fly-out-right {
+    0% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    75% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateX(var(--fly-out-distance));
+    }
+  }
+
+  @keyframes fly-out-left {
+    0% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    75% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateX(calc(-1 * var(--fly-out-distance)));
+    }
+  }
+
+  @keyframes fly-out-top {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    75% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(calc(-1 * var(--fly-out-distance)));
+    }
+  }
+
+  @keyframes fly-out-bottom {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    75% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(var(--fly-out-distance));
+    }
+  }
+}

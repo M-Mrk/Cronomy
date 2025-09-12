@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block head %}
+<script src="{{ url_for('static', filename='js/onboarding.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-4 h-screen bg-base-500">
+    <div class="col-span-1 flex flex-col justify-center items-center bg-base-50 animate-fly-in-left">
+        <ul class="steps steps-vertical">
+            <li class="step step-primary">Download Cronomy</li>
+            <li class="step">Check dependencies</li>
+            <li class="step">Set chrontab</li>
+            <li class="step">Start</li>
+        </ul>
+    </div>
+
+    <div class="col-span-3 flex flex-col justify-center items-center">
+        <div class="card bg-base-600 animate-fly-in-top"  id="card_base">
+            <div class="card-body" id="card_body">
+                <h2 class="card-title">Welcome to Cronomy!</h2>
+                <p>Lets get started! We first need to configure some things.</p>
+                <button id="next_button" class="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-lg">Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
