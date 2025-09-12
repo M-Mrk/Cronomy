@@ -58,10 +58,10 @@
   --fly-out-distance: 30vh;
 
   /* Fly in */
-  --animate-fly-in-top: fly-in-top-animation 1s ease-in-out;
-  --animate-fly-in-bottom: fly-in-bottom-animation 1s ease-in-out;
-  --animate-fly-in-left: fly-in-left-animation 1s ease-in-out;
-  --animate-fly-in-right: fly-in-right-animation 1s ease-in-out;
+  --animate-fly-in-top: fly-in-top-animation 1s ease-in-out forwards;
+  --animate-fly-in-bottom: fly-in-bottom-animation 1s ease-in-out forwards;
+  --animate-fly-in-left: fly-in-left-animation 1s ease-in-out forwards;
+  --animate-fly-in-right: fly-in-right-animation 1s ease-in-out forwards;
 
   @keyframes fly-in-top-animation {
     0% {

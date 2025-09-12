@@ -15,19 +15,19 @@ export function new_toast(message, warn=false) {
     const toast_button = document.createElement("button");
     toast_button.textContent = "X";
     toast_button.className = "btn btn-xs btn-dash";
-    toast_button.addEventListener("click", () => remove_toast(toast))
+    toast_button.addEventListener("click", () => remove_toast(toast));
     toast.appendChild(toast_button);
 
     toast_container.appendChild(toast);
 
     setTimeout(() => {
-        remove_toast(toast)
+        remove_toast(toast);
     }, 5000);
 }
 
 export function remove_toast(toast) {
-    toast.classList.add("animate-fly-out-right")
-    toast.addEventListener("transitionend", () => toast.remove(), { once: true })
+    toast.classList.add("animate-fly-out-right");
+    toast.addEventListener("transitionend", () => toast.remove(), { once: true });
 }
 
 export function update_theme(base, primary, secondary) {
