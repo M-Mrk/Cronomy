@@ -6,18 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cronomy</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block head %} {% endblock %}
 </head>
 
 <body class="text-user-text">
     {% block toast %}
-    <div class="toast toast-top toast-end" id="toast_container">
-        <div class="alert alert-warning">
-            <span>Message sent successfully.</span>
-            <button class="btn btn-xs btn-dash">X</button>
-        </div>
-    </div>
+    <div class="toast toast-top toast-end" id="toast_container"></div>
     {% endblock %}
     {% block content %}
     <container>

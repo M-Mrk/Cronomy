@@ -1,4 +1,36 @@
-function update_theme(base, primary, secondary) {
+export function new_toast(message, warn=false) {
+    const toast_container = document.getElementById("toast_container");
+    const toast = document.createElement('div');
+    toast.classList.add("alert");
+    if (warn) {
+        toast.classList.add("alert-warning");
+    } else {
+        toast.classList.add("alert-info");
+    }
+
+    const toast_message = document.createElement("span");
+    toast_message.textContent = String(message);
+    toast.appendChild(toast_message);
+
+    const toast_button = document.createElement("button");
+    toast_button.textContent = "X";
+    toast_button.className = "btn btn-xs btn-dash";
+    toast_button.addEventListener("click", () => remove_toast(toast))
+    toast.appendChild(toast_button);
+
+    toast_container.appendChild(toast);
+
+    setTimeout(() => {
+        remove_toast(toast)
+    }, 5000);
+}
+
+export function remove_toast(toast) {
+    toast.classList.add("animate-fly-out-right")
+    toast.addEventListener("transitionend", () => toast.remove(), { once: true })
+}
+
+export function update_theme(base, primary, secondary) {
     // Convert hex to RGB values
     const baseRgb = hex_to_rgb(base);
     const primaryRgb = hex_to_rgb(primary);
@@ -23,12 +55,4 @@ function hex_to_rgb(hex) {
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     } : null;
-}
-
-function new_toast(message, warn) {
-    const toast_container = document.getElementById("toast_container");
-    // <div class="alert alert-warning">
-    //     <span>Message sent successfully.</span>
-    //     <button class="btn btn-xs btn-dash">X</button>
-    // </div>
 }
