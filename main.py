@@ -27,12 +27,20 @@ def show_onboarding():
 # API
 @app.route('/api/dependencies')
 def api_dependencies():
-    from app.installation import is_chrontab_installed
+    from app.installation import is_crontab_installed
     try:
-        if is_chrontab_installed():
+        if is_crontab_installed():
             return jsonify({'installed': True}), 200
         else:
             return jsonify({'installed': False}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/crontab_path')
+def api_crontab_path():
+    from app.installation import check_crontab
+    try:
+        return jsonify({'found': check_crontab()}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

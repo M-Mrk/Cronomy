@@ -29,7 +29,7 @@
 
 /* Dynamic theme variables */
 :root {
-  --user-base: 248 250 252;
+  --user-base: 200 200 200;
   --user-primary: 59 130 246;
   --user-secondary: 16 185 129;
   --user-text: 0 0 0;

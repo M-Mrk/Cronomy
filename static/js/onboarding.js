@@ -46,6 +46,15 @@ function cancel_load() {
     }
 }
 
+function next_button_template() {
+    const button = document.createElement("button");
+    button.id = "next_button";
+    button.className = "btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-lg";
+    button.innerText = "Next";
+    button.addEventListener('click', next_step);
+    return button;
+}
+
 function show_new_card(new_card) {
     const card_base = document.getElementById("card_base");
     card_base.innerHTML = "";
@@ -104,6 +113,9 @@ async function advance_step() {
     switch (current_step) {
         case 1:
             return step_2();
+        case 2:
+            return step_3();
+
         default:
             return null;
     }
@@ -138,7 +150,7 @@ function step_2() {
                 return card_body;
             } else {
                 const text = document.createElement("p");
-                text.textContent = "Cronomy depends on cron/crontab. Please install cron or the equivalent for your distro (e.g. chronie) and restart Cronomy.";
+                text.textContent = "Cronomy depends on cron/crontab. Please install cron or the equivalent for your distro (e.g. cronie) and restart Cronomy.";
 
                 const tutorial = document.createElement("div");
                 tutorial.className = "tabs tabs-lift";
@@ -180,5 +192,70 @@ function step_2() {
         })
         .catch(error => {
             throw new Error(`Failed to fetch dependencies, ${error.message}`);
+        });
+}
+
+function step_3() {
+    const text = document.createElement("p");
+    text.textContent = "Now we need to find your crontab file and check if cronomy can access it.";
+
+    const spinner = document.createElement("span");
+    spinner.className = "loading loading-spinner loading-lg";
+    spinner.id = "cron_path_spinner";
+
+    const card_body = card_template("Crontab access", [text, spinner]);
+    current_step = 3;
+    setTimeout(check_crontab, 1000); // wait to make sure card was created and then fetch if path can be found automatically
+    return card_body;
+}
+
+async function check_crontab() {
+    return fetch('/api/crontab_path')
+        .then(response => {
+            const spinner = document.getElementById("cron_path_spinner");
+            console.log(spinner);
+            if (spinner) {
+                spinner.remove();
+            }
+
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    if (errorData.error) {
+                        throw new Error(`${errorData.error}`);
+                    }
+                    throw new Error(`Unexpected error`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            const card_body = document.getElementById("card_body");
+            if (data.found === true) {
+                const alert = document.createElement("div");
+                alert.className = "alert alert-success";
+                alert.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Crontabs are found and accessable!</span>
+                `
+                card_body.appendChild(alert);
+
+                const button = next_button_template();
+                card_body.appendChild(button);
+            } else {
+                const alert = document.createElement("div");
+                alert.className = "alert alert-error";
+                alert.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Crontabs could not be read: ${data.found}</span>
+                `
+                card_body.appendChild(alert);
+            }
+        })
+        .catch(error => {
+            throw new Error(`Failed to access crontab path, ${error.message}.`);
         });
 }
