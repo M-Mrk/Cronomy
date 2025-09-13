@@ -115,7 +115,11 @@ async function advance_step() {
             return step_2();
         case 2:
             return step_3();
-
+        case 3:
+            return step_4()
+        case 4:
+            window.location.href = '/';
+            return
         default:
             return null;
     }
@@ -138,12 +142,7 @@ function step_2() {
             if (data.installed) {
                 const text = document.createElement("p");
                 text.textContent = "Cron is installed. You can proceed to the next step.";
-
-                const button = document.createElement("button");
-                button.id = "next_button";
-                button.className = "btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-lg";
-                button.innerText = "Next";
-                button.addEventListener('click', next_step);
+                const button = next_button_template();
 
                 const card_body = card_template("Cron is installed!", [text, button]);
                 current_step = 2;
@@ -206,6 +205,17 @@ function step_3() {
     const card_body = card_template("Crontab access", [text, spinner]);
     current_step = 3;
     setTimeout(check_crontab, 1000); // wait to make sure card was created and then fetch if path can be found automatically
+    return card_body;
+}
+
+function step_4() {
+    const text = document.createElement("p");
+    text.textContent = "Setup completed. Lets get started!";
+    const button = next_button_template();
+    button.innerText = 'Start';
+
+    const card_body = card_template("Done!", [text, button]);
+    current_step = 4;
     return card_body;
 }
 

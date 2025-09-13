@@ -10,18 +10,23 @@ app = Flask(__name__)
 def onboarding(f):
     @wraps(f)
     def decor(*args, **kwargs):
+        load_dotenv()
         if os.getenv('onboarded', 'false').lower() != 'true':
+            print(f'Not onboarded!: {os.getenv('onboarded')}')
             return redirect('/onboarding')
         return f(*args, **kwargs)
     return decor
 
 @app.route('/')
+@app.route('/entries')
 @onboarding
-def home():
-    return render_template("onboarding.html") # replace with home later
+def entries():
+    return render_template("entries.html") # replace with home later
 
 @app.route('/onboarding')
 def show_onboarding():
+    if os.getenv('onboarded', 'false').lower() == 'true':
+        return redirect('/')
     return render_template("onboarding.html")
 
 # API
