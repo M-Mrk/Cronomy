@@ -15,7 +15,6 @@
     <div class="toast toast-top toast-end" id="toast_container"></div>
     {% endblock %}
     {% block content %}
-    <div class="h-screen bg-base-500 flex flex-col">
     <div class="navbar bg-base-100 shadow-sm">
         <div id="tablist" role="tablist" class="tabs tabs-box bg-primary-500">
             <a role="tab" id="entries" class="tab" href="{{ url_for('show_entries') }}">Entries</a>
@@ -23,7 +22,6 @@
         </div>
     </div>
 
-    <div><!-- actual content -->
     {% endblock %}
 </body>
 
