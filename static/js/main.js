@@ -56,3 +56,32 @@ function hex_to_rgb(hex) {
         b: parseInt(result[3], 16)
     } : null;
 }
+
+document.addEventListener("DOMContentLoaded", async () => {
+    set_correct_tab()
+});
+
+function set_correct_tab() {
+    const tablist = document.getElementById('tablist');
+    if (!tablist) {
+        return;
+    }
+    const page = window.location.href.toString().split(window.location.host)[1];
+    let id = null;
+    switch (page) {
+        case '/':
+        case '/entries':
+            id = 'entries';
+            break;
+
+        case 'scheduled':
+            id = 'scheduled';
+    }
+
+    if (id) {
+        const correct_tab = document.getElementById(id);
+        if (correct_tab) {
+            correct_tab.classList.add('tab-active');
+        }
+    }
+}

@@ -20,8 +20,12 @@ def onboarding(f):
 @app.route('/')
 @app.route('/entries')
 @onboarding
-def entries():
+def show_entries():
     return render_template("entries.html") # replace with home later
+
+@app.route('/scheduled')
+def show_scheduled():
+    return jsonify({'error': 'Not implemented'}), 500
 
 @app.route('/onboarding')
 def show_onboarding():
