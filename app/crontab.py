@@ -1,10 +1,17 @@
 import subprocess
 from typing import Optional
 
-def get_crontab(root: bool):
+COMMAND_ARGUMENT_POS = 5 # Index of the command in the crontab
+LINE_ARGUMENT_POS = 6
+ERROR_ARGUMRNT_POS = 7
+
+def get_crontab(root: bool=False):
+    """
+    Returns the raw string of the crontab file
+    """
     command = ['crontab', '-l']
     if root:
-        command.insert(0, 'sudo')
+        command.insert(0, 'sudo') # Add sudo to the front of the command
     result = subprocess.run(command,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
@@ -28,13 +35,15 @@ class Crontab_entry():
 
 CHARS_TO_SKIP = '#'
 CRONTAB_ARGUMENTS = ["minute", "hour", "day_of_month", "month", "day_of_week", "command"]
-COMMAND_ARGUMENT_POS = 5
-def convert_to_crontab_obj(raw_entries: str, root: bool):
+
+def convert_to_crontab_obj(raw_entries: str, root: bool=False):
+    """
+    Converts all entries in the given raw string into crontab obj and returns them in a list
+    """
     output_entries = []
     for line_number, line in enumerate(raw_entries.splitlines()):
         stripped_line = line.strip()
-        if stripped_line == "" or stripped_line[0] in CHARS_TO_SKIP:
-            print(f"{stripped_line}, was skipped")
+        if stripped_line == "" or stripped_line[0] in CHARS_TO_SKIP: # Skip line if it is empty or starts with a char of CHARS_TO_SKIP
             continue
         
         entry_arguments = []
@@ -43,9 +52,9 @@ def convert_to_crontab_obj(raw_entries: str, root: bool):
             try:
                 split_line = stripped_line.split()
                 if index == COMMAND_ARGUMENT_POS and len(split_line) > COMMAND_ARGUMENT_POS: # On command argument and there are still elements left -> command has spaces
-                    command = ""
-                    for x in range(COMMAND_ARGUMENT_POS, (len(split_line))): # Add all arguments from 4 to end
-                        command += split_line[x]
+                    command = split_line[index]
+                    for x in range((COMMAND_ARGUMENT_POS+1), (len(split_line))): # Add all arguments from 4 to end
+                        command += f" {split_line[x]}"
                     entry_arguments.append(command)
                 else:
                     entry_arguments.append(split_line[index])
@@ -70,26 +79,83 @@ def convert_to_crontab_obj(raw_entries: str, root: bool):
 
     return output_entries
 
-def get_crontab_entries(root: bool):
+def get_crontab_entries(root: bool=False):
+    """
+    Returns a list of all crontab entries as crontab entries 
+    """
     raw_entries = get_crontab(root=root)
     return convert_to_crontab_obj(raw_entries=raw_entries, root=root)
 
 def print_entries(entries: list[Crontab_entry]):
+    """
+    Prints all Crontab_entry obj in the given List
+    """
     for index, entry in enumerate(entries):
         print(f"  {index}:")
-        for key, value in entry.__dict__.items():
+        for key, value in entry.__dict__.items(): # Turn into a dict and print every key and its value
             print(f"    {key}: {value}")
         print("\n")
 
-def write_crontab(crontab: str):
-    pass
+CRONTAB_OBJ_ARGUMENTS = 6
+def crontab_obj_to_str(crontab_objs: list[Crontab_entry]):
+    output = ""
+    for obj in crontab_objs:
+        if obj.error:
+            raise Exception("Crontab obj had an error and could not be parsed to string.")
+    for object in crontab_objs:
+        object_dict = object.__dict__
+        for index, (key, value) in enumerate(object_dict.items()):
+            if index >= LINE_ARGUMENT_POS: # stop iterating after getting all important attributes
+                break
+            output += f"{value} "
+        output += "\n"
+    return output
 
-def append_entry(root: bool):
-    pass
+def write_crontab(crontab_objs: Optional[list[Crontab_entry]]=None, crontab_string: Optional[str]=None, root: bool=False):
+    """
+    Replaces the current crontab with the given string or the list of crontab objs
+    """
+    command = ["crontab", "-"]
+    if root:
+        command.insert(0, "sudo")
+
+    if not crontab_objs and not crontab_string:
+        raise ValueError("Could not write crontab, as there was neither a crontab obj nor a crontab string.")
+
+    if crontab_objs:
+        crontab = crontab_obj_to_str(crontab_objs=crontab_objs)
+    else:
+        crontab = crontab_string
+
+    subprocess.run(command, input=crontab, text=True)
+
+def append_crontab_entry(entry: Crontab_entry, root: bool=False):
+    """
+    Appends the given crontab obj
+    """
+    crontab = get_crontab(root=root)
+    new_entry = crontab_obj_to_str([entry])
+    crontab += f"\n{new_entry}"
+    write_crontab(crontab_string=crontab, root=root)
 
 if __name__ == "__main__":
     print("User:")
     print_entries(get_crontab_entries(root=False))
+
+    test = Crontab_entry(
+        minute='*',
+        hour='10',
+        day_of_month='*',
+        month='*',
+        day_of_week='*',
+        command='echo "Test"',
+        root=False,
+        line=1,
+        error=None
+    )
+    append_crontab_entry(entry=test)
+    print("User:")
+    print_entries(get_crontab_entries(root=False))
     
-    print("Root:")
-    print_entries(get_crontab_entries(root=True))
+    # print("Root:")
+    # print_entries(get_crontab_entries(root=True))
