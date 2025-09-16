@@ -22,7 +22,7 @@ def get_crontab(root: bool=False):
     return result.stdout.decode()
 
 class Crontab_entry():
-    def __init__(self, minute: str, hour: str, day_of_month: str, month: str, day_of_week: str, command: str, root: bool, line: int, error: Optional[str]):
+    def __init__(self, minute: str, hour: str, day_of_month: str, month: str, day_of_week: str, command: str, line: int, error: Optional[str]):
         self.minute = minute
         self.hour = hour
         self.day_of_month = day_of_month
@@ -30,13 +30,12 @@ class Crontab_entry():
         self.day_of_week = day_of_week
         self.command = command
         self.line = line
-        self.root = root
         self.error = error if error else False
 
 CHARS_TO_SKIP = '#'
 CRONTAB_ARGUMENTS = ["minute", "hour", "day_of_month", "month", "day_of_week", "command"]
 
-def convert_to_crontab_obj(raw_entries: str, root: bool=False):
+def str_to_crontab_obj(raw_entries: str):
     """
     Converts all entries in the given raw string into crontab obj and returns them in a list
     """
@@ -71,8 +70,7 @@ def convert_to_crontab_obj(raw_entries: str, root: bool=False):
             month=entry_arguments[3],
             day_of_week=entry_arguments[4],
             command=entry_arguments[5],
-            root=root,
-            line=line_number,
+            line=(line_number+1),
             error=error if error else None
         )
         output_entries.append(new_crontab_entry)
@@ -84,7 +82,7 @@ def get_crontab_entries(root: bool=False):
     Returns a list of all crontab entries as crontab entries 
     """
     raw_entries = get_crontab(root=root)
-    return convert_to_crontab_obj(raw_entries=raw_entries, root=root)
+    return str_to_crontab_obj(raw_entries=raw_entries)
 
 def print_entries(entries: list[Crontab_entry]):
     """
@@ -138,24 +136,24 @@ def append_crontab_entry(entry: Crontab_entry, root: bool=False):
     crontab += f"\n{new_entry}"
     write_crontab(crontab_string=crontab, root=root)
 
+def replace_crontab_entry(new_entry: Crontab_entry, root: bool=False):
+    """
+    Will replace the crontab at the given line number of new_entry.line with the new_entry.
+    """
+    crontab = get_crontab()
+    new_crontab = ""
+    for index, line in enumerate(crontab.splitlines()):
+        if new_entry.line == (index+1):
+            new_crontab += crontab_obj_to_str([new_entry])
+        else:
+            new_crontab += line
+            new_crontab += "\n"
+    
+    write_crontab(crontab_string=new_crontab, root=root)
+
 if __name__ == "__main__":
     print("User:")
     print_entries(get_crontab_entries(root=False))
 
-    test = Crontab_entry(
-        minute='*',
-        hour='10',
-        day_of_month='*',
-        month='*',
-        day_of_week='*',
-        command='echo "Test"',
-        root=False,
-        line=1,
-        error=None
-    )
-    append_crontab_entry(entry=test)
-    print("User:")
-    print_entries(get_crontab_entries(root=False))
-    
-    # print("Root:")
-    # print_entries(get_crontab_entries(root=True))
+    print("Root:")
+    print_entries(get_crontab_entries(root=True))
