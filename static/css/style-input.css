@@ -29,9 +29,9 @@
 
 /* Dynamic theme variables */
 :root {
-  --user-base: 200 200 200;
-  --user-primary: 59 130 246;
-  --user-secondary: 16 185 129;
+  --user-base: 250 250 250;
+  --user-primary: 0 230 210;
+  --user-secondary: 0 153 153;
   --user-text: 0 0 0;
 }
 
@@ -40,6 +40,7 @@
   --color-base-50: oklch(from rgb(var(--user-base)) calc(l + 0.05) c h);
   --color-base-100: oklch(from rgb(var(--user-base)) calc(l + 0.03) c h);
   --color-base-500: rgb(var(--user-base));
+  --color-base-550: oklch(from rgb(var(--user-base)) calc(l - 0.05) c h);
   --color-base-600: oklch(from rgb(var(--user-base)) calc(l - 0.10) c h);
   --color-base-700: oklch(from rgb(var(--user-base)) calc(l - 0.20) c h);
   --color-base-900: oklch(from rgb(var(--user-base)) calc(l - 0.40) c h);
@@ -52,6 +53,8 @@
 
   --color-secondary-500: rgb(var(--user-secondary));
 
+  --color-text-500: rgb(var(--user-text));
+  
   /* animations */
   /* Variables */
   --fly-in-distance: 15vh;

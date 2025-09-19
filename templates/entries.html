@@ -1,11 +1,43 @@
 {% extends "base.html" %}
 {% block head %}
-<script type="module" src="{{ url_for('static', filename='js/entries.js') }}"></script>
+<script src="{{ url_for('static', filename='js/entries.js') }}"></script>
+{% endblock %}
+
+{% block navbar %}
+{{ super() }}
+<button class="btn btn-square p-2 bg-primary-500" id="refresh_button">
+  <img src="/static/img/refresh.svg" />
+</button>
 {% endblock %}
 
 {% block content %}
 {{ super() }}
-<div class="w-screen h-screen bg-base-500 flex flex-col items-center p-5">
-Test
+<div class="w-screen h-screen bg-base-500 flex flex-col items-center p-5" id="entry_base">
+    <div class="card bg-secondary-500 z-10 absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2" id="loader_base">
+        <div class="card-body">
+            <span class="flex flex-row m-1">
+                <h2 class="card-title font-normal">Loading Entries</h2>
+                <span class="ml-2 loading loading-dots loading-md"></span>
+            </span>
+        </div>
+    </div>
+
+    <!-- User entries -->
+    <div class="collapse collapse-arrow hidden bg-base-550" id="user_entries_body">
+        <input type="checkbox" />
+        <div class="collapse-title font-semibold text-2xl">User entries</div>
+        <div class="collapse-content text-sm" id="user_entries_container">
+            None
+        </div>
+    </div>
+
+    <!-- Root entries -->
+    <div class="collapse collapse-arrow border-base-300 border hidden bg-base-550" id="root_entries_body">
+        <input type="checkbox" />
+        <div class="collapse-title font-semibold text-2xl">Root entries</div>
+        <div class="collapse-content text-sm" id="root_entries_container">
+            None
+        </div>
+    </div>
 </div>
 {% endblock %}

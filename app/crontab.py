@@ -77,9 +77,9 @@ def str_to_crontab_obj(raw_entries: str):
 
     return output_entries
 
-def get_crontab_entries(root: bool=False):
+def get_crontab_entries(root: bool=False) -> list[Crontab_entry]:
     """
-    Returns a list of all crontab entries as crontab entries 
+    Returns all crontab entries as a list of Crontab_entry objs. 
     """
     raw_entries = get_crontab(root=root)
     return str_to_crontab_obj(raw_entries=raw_entries)

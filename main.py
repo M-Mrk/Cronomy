@@ -47,9 +47,28 @@ def api_dependencies():
     
 @app.route('/api/crontab_path')
 def api_crontab_path():
-    from app.installation import check_crontab
     try:
+        from app.installation import check_crontab
         return jsonify({'found': check_crontab()}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/entries')
+def api_get_entries():
+    try:
+        from app.crontab import get_crontab_entries
+
+        user_entries = []
+        user_crontab_entries = get_crontab_entries(root=False)
+        for entry in user_crontab_entries:
+            user_entries.append(entry.__dict__)
+
+        root_entries = []
+        root_crontab_entries = get_crontab_entries(root=True)
+        for entry in root_crontab_entries:
+            root_entries.append(entry.__dict__)
+
+        return jsonify({'user': user_entries, 'root': root_entries}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
