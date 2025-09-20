@@ -203,10 +203,16 @@ function create_entry_base(entry) {
     
     entry_title.appendChild(command_container);
 
+
+    const tool_tip = document.createElement('div');
+    tool_tip.className = 'tooltip z-10';
+    tool_tip.setAttribute('data-tip', 'Line number');
+
     const line_number = document.createElement("kbd");
     line_number.className = "kbd kbd-sm";
     line_number.innerText = entry.line;
-    entry_title.appendChild(line_number);
+    tool_tip.appendChild(line_number);
+    entry_title.appendChild(tool_tip);
     entry_base.appendChild(entry_title);
 
     const entry_content = document.createElement("div");

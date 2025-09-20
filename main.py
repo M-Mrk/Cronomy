@@ -25,7 +25,7 @@ def show_entries():
 
 @app.route('/scheduled')
 def show_scheduled():
-    return jsonify({'error': 'Not implemented'}), 500
+    return render_template("scheduled.html")
 
 @app.route('/onboarding')
 def show_onboarding():

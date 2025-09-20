@@ -73,8 +73,7 @@ function set_correct_tab() {
         case '/entries':
             id = 'entries';
             break;
-
-        case 'scheduled':
+        case '/scheduled':
             id = 'scheduled';
     }
 
