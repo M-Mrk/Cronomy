@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, jsonify
+from flask import Flask, render_template, redirect, jsonify, request
 import os
 from dotenv import load_dotenv
 from functools import wraps
@@ -78,6 +78,42 @@ def api_get_entries():
         #     pprint(entry)
 
         return jsonify({'user': user_entries, 'root': root_entries}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/entries/new', methods=['POST'])
+def api_new_entry():
+    try:
+        from app.crontab import append_crontab_entry, Crontab_entry
+        data = request.get_json()
+        minute = data.get('minute')
+        hour = data.get('hour')
+        day_of_month = data.get('day_of_month')
+        month = data.get('month')
+        day_of_week = data.get('day_of_week')
+        command = data.get('command')
+
+        user = data.get('user')
+        if user.lower() == 'true':
+            user = True
+        else:
+            user = False
+
+        new_entry = Crontab_entry(
+            minute=minute,
+            hour=hour,
+            day_of_month=day_of_month,
+            month=month,
+            day_of_week=day_of_week,
+            command=command,
+            line=0,
+            error=None
+        )
+
+        append_crontab_entry(entry=new_entry, root=not user)
+
+        return jsonify({'success': True}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

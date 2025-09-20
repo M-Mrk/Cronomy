@@ -353,4 +353,159 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         end_loading_sequence();
     });
+
+    // Modal functionality
+    setupModalHandlers();
 });
+
+// Global variable to track which type of entry we're adding
+let currentEntryType = 'user';
+
+function setupModalHandlers() {
+    const userPlusButton = document.getElementById("user_plus_button");
+    const rootPlusButton = document.getElementById("root_plus_button");
+    const modal = document.getElementById("new_entry_modal");
+    const form = document.getElementById("new_entry_form");
+
+    // Open modal for user entries
+    userPlusButton.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent collapse toggle
+        currentEntryType = 'user';
+        openNewEntryModal();
+    });
+
+    // Open modal for root entries
+    rootPlusButton.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent collapse toggle
+        currentEntryType = 'root';
+        openNewEntryModal();
+    });
+
+    // Handle quick template buttons
+    document.querySelectorAll('[data-schedule]').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const schedule = e.target.getAttribute('data-schedule');
+            applyScheduleTemplate(schedule);
+        });
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', handleFormSubmission);
+}
+
+function openNewEntryModal() {
+    const modal = document.getElementById("new_entry_modal");
+    const form = document.getElementById("new_entry_form");
+    
+    // Update modal title based on entry type
+    const title = modal.querySelector('h3');
+    title.textContent = `Add New ${currentEntryType === 'user' ? 'User' : 'Root'} Cron Entry`;
+    
+    // Reset form
+    form.reset();
+    
+    // Show modal
+    modal.showModal();
+}
+
+function applyScheduleTemplate(schedule) {
+    const parts = schedule.split(' ');
+    if (parts.length === 5) {
+        document.querySelector('input[name="minute"]').value = parts[0];
+        document.querySelector('input[name="hour"]').value = parts[1];
+        document.querySelector('input[name="day_of_month"]').value = parts[2];
+        document.querySelector('input[name="month"]').value = parts[3];
+        document.querySelector('input[name="day_of_week"]').value = parts[4];
+    }
+}
+
+async function handleFormSubmission(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    
+    // Show loading state
+    submitButton.textContent = 'Adding...';
+    submitButton.disabled = true;
+    
+    try {
+        const entryData = {
+            minute: formData.get('minute') || '*',
+            hour: formData.get('hour') || '*',
+            day_of_month: formData.get('day_of_month') || '*',
+            month: formData.get('month') || '*',
+            day_of_week: formData.get('day_of_week') || '*',
+            command: formData.get('command'),
+            user: currentEntryType === 'root' ? 'false' : 'true'
+        };
+
+        // Validate required command
+        if (!entryData.command.trim()) {
+            throw new Error('Command is required');
+        }
+
+        const response = await fetch('/api/entries/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(entryData)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Failed to add entry');
+        }
+
+        // Success - close modal and refresh entries
+        document.getElementById("new_entry_modal").close();
+        showToast('Entry added successfully!', 'success');
+        
+        // Refresh the entries list
+        await start_loading_sequence();
+        const new_entries = await load_entries_json();
+        if (new_entries) {
+            const root_container = document.getElementById("root_entries_container");
+            root_container.innerHTML = "";
+
+            const user_container = document.getElementById("user_entries_container");
+            user_container.innerHTML = "";
+
+            add_entries(new_entries);
+        }
+        end_loading_sequence();
+
+    } catch (error) {
+        console.error('Error adding entry:', error);
+        showToast(error.message || 'Failed to add entry', 'error');
+    } finally {
+        // Reset button state
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast_container');
+    if (!toastContainer) return;
+
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'error' ? 'error' : type === 'success' ? 'success' : 'info'} mb-2`;
+    toast.innerHTML = `
+        <span>${message}</span>
+        <button class="btn btn-sm btn-ghost" onclick="this.parentElement.remove()">✕</button>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 5000);
+}
