@@ -57,16 +57,25 @@ def api_crontab_path():
 def api_get_entries():
     try:
         from app.crontab import get_crontab_entries
+        from pprint import pprint
 
         user_entries = []
         user_crontab_entries = get_crontab_entries(root=False)
         for entry in user_crontab_entries:
-            user_entries.append(entry.__dict__)
+            user_entries.append(vars(entry))
 
         root_entries = []
         root_crontab_entries = get_crontab_entries(root=True)
         for entry in root_crontab_entries:
-            root_entries.append(entry.__dict__)
+            root_entries.append(vars(entry))
+
+        # print('root:')
+        # for entry in root_entries:
+        #     pprint(entry)
+
+        # print('user:')
+        # for entry in user_entries:
+        #     pprint(entry)
 
         return jsonify({'user': user_entries, 'root': root_entries}), 200
     except Exception as e:

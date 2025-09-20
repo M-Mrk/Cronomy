@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tailwind": "npx @tailwindcss/cli -i ./static/css/style-input.css -o ./static/css/style.css --watch",
-    "start": "source venv/bin/activate && sudo ./venv/bin/python3 main.py",
+    "start": "source venv/bin/activate && ./venv/bin/python3 main.py",
     "dev": "concurrently \"npm run tailwind\" \"npm run start\""
   },
   "repository": {
