@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def is_crontab_installed():
+    if os.getenv('demo', False):
+        return True
+
     if shutil.which('crontab') is None:
         try: # Failover check
             subprocess.run(['crontab', '-l'], capture_output=True, check=False)

@@ -1,14 +1,27 @@
 import subprocess
 from typing import Optional
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 COMMAND_ARGUMENT_POS = 5 # Index of the command in the crontab
 LINE_ARGUMENT_POS = 6
 ERROR_ARGUMRNT_POS = 7
 
+def demo():
+    if os.getenv('demo', 'false').lower() == 'true':
+        return True
+    else:
+        return False
+
 def get_crontab(root: bool=False):
     """
     Returns the raw string of the crontab file
     """
+    if demo():
+        from .demo.fake_crontab import get_fake_crontab
+        return get_fake_crontab(root=root)
+
     command = ['crontab', '-l']
     if root:
         command.insert(0, 'sudo') # Add sudo to the front of the command
@@ -124,6 +137,13 @@ def write_crontab(crontab_objs: Optional[list[Crontab_entry]]=None, crontab_stri
         crontab = crontab_obj_to_str(crontab_objs=crontab_objs)
     else:
         crontab = crontab_string
+
+    if demo():
+        from .demo.fake_crontab import write_fake_crontab
+        if crontab is None:
+            crontab = ""
+        write_fake_crontab(crontab, root)
+        return
 
     subprocess.run(command, input=crontab, text=True)
 
