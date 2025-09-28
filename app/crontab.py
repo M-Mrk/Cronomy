@@ -140,7 +140,7 @@ def replace_crontab_entry(new_entry: Crontab_entry, root: bool=False):
     """
     Will replace the crontab at the given line number of new_entry.line with the new_entry.
     """
-    crontab = get_crontab()
+    crontab = get_crontab(root=root)
     new_crontab = ""
     for index, line in enumerate(crontab.splitlines()):
         if new_entry.line == (index+1):

@@ -10,7 +10,6 @@ async function next_step() {
     }
     loading = true
 
-    console.log('Next step!');
     const card_base = document.getElementById("card_base");
     const card_button = document.getElementById("next_button");
     card_base.classList.remove("animate-fly-in-top");
@@ -67,7 +66,6 @@ function set_step_ui(step) {
     const steps_ui = document.getElementById("steps_ui_list");
     const steps = steps_ui.getElementsByClassName("step");
     if (step > (steps.length - 1)) {
-        console.error("Could not set_step_ui, as specified step is higher than there are steps.");
         return;
     }
 

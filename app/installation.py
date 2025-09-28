@@ -14,13 +14,13 @@ def is_crontab_installed():
 
 def check_crontab():
     try:
-        from .crontab import get_user_crontab, get_root_crontab
+        from .crontab import get_crontab
     except ImportError: # Different import when calling this file directly
-        from crontab import get_user_crontab, get_root_crontab # type: ignore (ignore error)
+        from crontab import get_crontab # type: ignore (ignore error)
 
     try:
-        get_user_crontab()
-        get_root_crontab()
+        get_crontab()
+        get_crontab(True)
         complete_onboarding()
         return True
     except Exception as e:

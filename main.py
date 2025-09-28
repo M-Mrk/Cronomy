@@ -21,7 +21,7 @@ def onboarding(f):
 @app.route('/entries')
 @onboarding
 def show_entries():
-    return render_template("entries.html") # replace with home later
+    return render_template("entries.html")
 
 @app.route('/scheduled')
 def show_scheduled():
@@ -51,6 +51,7 @@ def api_crontab_path():
         from app.installation import check_crontab
         return jsonify({'found': check_crontab()}), 200
     except Exception as e:
+        raise Exception(e)
         return jsonify({'error': str(e)}), 500
     
 @app.route('/api/entries')
@@ -117,5 +118,41 @@ def api_new_entry():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/entries/edit', methods=['POST'])
+def api_change_entry():
+    try:
+        data = request.get_json()
+        from app.crontab import replace_crontab_entry, Crontab_entry
+        line = data.get('line')
+        minute = data.get('minute')
+        hour = data.get('hour')
+        day_of_month = data.get('day_of_month')
+        month = data.get('month')
+        day_of_week = data.get('day_of_week')
+        command = data.get('command')
+
+        root = data.get('root')
+        if root.lower() == 'true':
+            root = True
+        else:
+            root = False
+
+        changed_entry = Crontab_entry(
+            minute=minute,
+            hour=hour,
+            day_of_month=day_of_month,
+            month=month,
+            day_of_week=day_of_week,
+            command=command,
+            line=line,
+            error=None
+        )
+
+        replace_crontab_entry(new_entry=changed_entry, root=root)
+        return jsonify({'success': True}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 if __name__ == '__main__':
     app.run(debug=True)

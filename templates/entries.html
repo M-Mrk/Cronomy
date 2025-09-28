@@ -6,14 +6,15 @@
 {% block navbar %}
 {{ super() }}
 <button class="btn btn-square p-2 bg-primary-500" id="refresh_button">
-  <img src="/static/img/refresh.svg" />
+    <img src="/static/img/refresh.svg" />
 </button>
 {% endblock %}
 
 {% block content %}
 {{ super() }}
 <div class="min-h-screen bg-base-500 flex flex-col items-center p-5 pt-8 pb-20 relative" id="entry_base">
-    <div class="card bg-secondary-500 z-10 absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2" id="loader_base">
+    <div class="card bg-secondary-500 z-10 absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        id="loader_base">
         <div class="card-body">
             <span class="flex flex-row m-1">
                 <h2 class="card-title font-normal">Loading Entries</h2>
@@ -29,7 +30,8 @@
             User entries
             <button class="btn btn-square p-2 bg-primary-500 z-2" id="user_plus_button">
                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
                 </svg>
             </button>
         </div>
@@ -45,7 +47,8 @@
             Root entries
             <button class="btn btn-square p-2 bg-primary-500 z-2" id="root_plus_button">
                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
                 </svg>
             </button>
         </div>
@@ -61,7 +64,7 @@
                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             </form>
             <h3 class="font-bold text-lg mb-4">Add New Cron Entry</h3>
-            
+
             <form id="new_entry_form" class="space-y-4">
                 <!-- Cron Schedule Fields -->
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -117,7 +120,8 @@
                     <label class="label">
                         <span class="label-text">Command</span>
                     </label>
-                    <input type="text" name="command" placeholder="Enter the command to execute" class="input input-bordered" required />
+                    <input type="text" name="command" placeholder="Enter the command to execute"
+                        class="input input-bordered" required />
                     <label class="label">
                         <span class="label-text-alt">Example: /usr/bin/echo 'Hello World'</span>
                     </label>
@@ -129,19 +133,138 @@
                         <span class="label-text">Quick Templates</span>
                     </label>
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-outline btn-xs" data-schedule="0 0 * * *">Daily at midnight</button>
-                        <button type="button" class="btn btn-outline btn-xs" data-schedule="0 12 * * *">Daily at noon</button>
-                        <button type="button" class="btn btn-outline btn-xs" data-schedule="0 0 * * 0">Weekly (Sunday)</button>
+                        <button type="button" class="btn btn-outline btn-xs" data-schedule="0 0 * * *">Daily at
+                            midnight</button>
+                        <button type="button" class="btn btn-outline btn-xs" data-schedule="0 12 * * *">Daily at
+                            noon</button>
+                        <button type="button" class="btn btn-outline btn-xs" data-schedule="0 0 * * 0">Weekly
+                            (Sunday)</button>
                         <button type="button" class="btn btn-outline btn-xs" data-schedule="0 0 1 * *">Monthly</button>
-                        <button type="button" class="btn btn-outline btn-xs" data-schedule="*/5 * * * *">Every 5 minutes</button>
-                        <button type="button" class="btn btn-outline btn-xs" data-schedule="0 */2 * * *">Every 2 hours</button>
+                        <button type="button" class="btn btn-outline btn-xs" data-schedule="*/5 * * * *">Every 5
+                            minutes</button>
+                        <button type="button" class="btn btn-outline btn-xs" data-schedule="0 */2 * * *">Every 2
+                            hours</button>
                     </div>
                 </div>
 
                 <!-- Submit Buttons -->
                 <div class="modal-action">
-                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('new_entry_modal').close()">Cancel</button>
+                    <button type="button" class="btn btn-ghost"
+                        onclick="document.getElementById('new_entry_modal').close()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Add Entry</button>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Edit Entry Modal -->
+    <dialog id="edit_entry_modal" class="modal">
+        <div class="modal-box w-11/12 max-w-2xl">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-lg mb-4">Edit Cron Entry</h3>
+
+            <form id="edit_entry_form" class="space-y-4">
+                <!-- Hidden fields for tracking -->
+                <input type="hidden" name="line" id="edit_line" />
+                <input type="hidden" name="root" id="edit_root" />
+
+                <!-- Cron Schedule Fields -->
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-xs">Minute (0-59)</span>
+                        </label>
+                        <input type="text" name="minute" id="edit_minute" placeholder="*"
+                            class="input input-bordered input-sm" />
+                        <label class="label">
+                            <span class="label-text-alt text-xs opacity-70">* = every</span>
+                        </label>
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-xs">Hour (0-23)</span>
+                        </label>
+                        <input type="text" name="hour" id="edit_hour" placeholder="*"
+                            class="input input-bordered input-sm" />
+                        <label class="label">
+                            <span class="label-text-alt text-xs opacity-70">* = every</span>
+                        </label>
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-xs">Day (1-31)</span>
+                        </label>
+                        <input type="text" name="day_of_month" id="edit_day_of_month" placeholder="*"
+                            class="input input-bordered input-sm" />
+                        <label class="label">
+                            <span class="label-text-alt text-xs opacity-70">* = every</span>
+                        </label>
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-xs">Month (1-12)</span>
+                        </label>
+                        <input type="text" name="month" id="edit_month" placeholder="*"
+                            class="input input-bordered input-sm" />
+                        <label class="label">
+                            <span class="label-text-alt text-xs opacity-70">* = every</span>
+                        </label>
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-xs">Weekday (0-7)</span>
+                        </label>
+                        <input type="text" name="day_of_week" id="edit_day_of_week" placeholder="*"
+                            class="input input-bordered input-sm" />
+                        <label class="label">
+                            <span class="label-text-alt text-xs opacity-70">0,7=Sun</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Command Field -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Command</span>
+                    </label>
+                    <input type="text" name="command" id="edit_command" placeholder="Enter the command to execute"
+                        class="input input-bordered" required />
+                    <label class="label">
+                        <span class="label-text-alt">Example: /usr/bin/echo 'Hello World'</span>
+                    </label>
+                </div>
+
+                <!-- Quick Schedule Templates -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Quick Templates</span>
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-outline btn-xs edit-schedule-template"
+                            data-schedule="0 0 * * *">Daily at midnight</button>
+                        <button type="button" class="btn btn-outline btn-xs edit-schedule-template"
+                            data-schedule="0 12 * * *">Daily at noon</button>
+                        <button type="button" class="btn btn-outline btn-xs edit-schedule-template"
+                            data-schedule="0 0 * * 0">Weekly (Sunday)</button>
+                        <button type="button" class="btn btn-outline btn-xs edit-schedule-template"
+                            data-schedule="0 0 1 * *">Monthly</button>
+                        <button type="button" class="btn btn-outline btn-xs edit-schedule-template"
+                            data-schedule="*/5 * * * *">Every 5 minutes</button>
+                        <button type="button" class="btn btn-outline btn-xs edit-schedule-template"
+                            data-schedule="0 */2 * * *">Every 2 hours</button>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="modal-action">
+                    <button type="button" class="btn btn-ghost"
+                        onclick="document.getElementById('edit_entry_modal').close()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Entry</button>
                 </div>
             </form>
         </div>

@@ -100,7 +100,7 @@ async function load_entries_json() {
                             console.error("An unknown error occurred.");
                         }
                     }).catch(() => {
-                        console.error("Failed to parse error response.");
+                        // Handle parse error silently
                     });
                 } else {
                     console.error(`HTTP error: ${response.status}`);
@@ -116,7 +116,7 @@ async function load_entries_json() {
 
 function get_cron_explanation(entry) {
     const { minute, hour, day_of_month, month, day_of_week } = entry;
-    
+
     // functions for
     // time
     const format_time = (h, m) => {
@@ -125,11 +125,11 @@ function get_cron_explanation(entry) {
         if (m === '*') return `every minute of hour ${h}`;
         return `at ${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
     };
-    
+
     // days
     const format_days = (dom, dow) => {
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        
+
         if (dom === '*' && dow === '*') return 'every day';
         if (dom !== '*' && dow === '*') return `on day ${dom} of the month`;
         if (dom === '*' && dow !== '*') {
@@ -138,38 +138,38 @@ function get_cron_explanation(entry) {
         }
         return `on day ${dom} of the month and on ${days[parseInt(dow)] || dow}`;
     };
-    
+
     // months
     const format_months = (m) => {
         if (m === '*') return 'every month';
         const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                       'July', 'August', 'September', 'October', 'November', 'December'];
+            'July', 'August', 'September', 'October', 'November', 'December'];
         const monthNum = parseInt(m);
         return `in ${months[monthNum - 1] || m}`;
     };
-    
+
     // Build explanation
     let explanation = 'Runs ';
-    
+
     // handle edge case
     if (minute === '*' && hour === '*' && day_of_month === '*' && month === '*' && day_of_week === '*') {
         return 'Runs every minute of every day';
     }
-    
+
     // time part
     explanation += format_time(hour, minute);
-    
+
     // day part
     const day_part = format_days(day_of_month, day_of_week);
     if (day_part !== 'every day') {
         explanation += ', ' + day_part;
     }
-    
+
     // month part
     if (month !== '*') {
         explanation += ', ' + format_months(month);
     }
-    
+
     return explanation;
 }
 
@@ -183,26 +183,29 @@ function create_entry_base(entry) {
 
     const entry_title = document.createElement("div");
     entry_title.className = "collapse-title font-normal text-md flex flex-row justify-between items-center";
-    
+
     // Create command container
     const command_container = document.createElement("div");
     command_container.className = "flex flex-col flex-1 mr-4";
-    
+
     // Command text
     const command_text = document.createElement("span");
     command_text.className = "font-medium text-base-content truncate";
     command_text.innerText = String(entry.command);
     command_text.title = String(entry.command); // Tooltip for full command
     command_container.appendChild(command_text);
-    
+
     // Cron schedule preview
     const schedule_preview = document.createElement("span");
     schedule_preview.className = "text-sm text-base-content/70 mt-1";
     schedule_preview.innerText = `${entry.minute} ${entry.hour} ${entry.day_of_month} ${entry.month} ${entry.day_of_week}`;
     command_container.appendChild(schedule_preview);
-    
+
     entry_title.appendChild(command_container);
 
+    // Create container for line number and edit button
+    const controls_container = document.createElement("div");
+    controls_container.className = "flex items-center gap-2";
 
     const tool_tip = document.createElement('div');
     tool_tip.className = 'tooltip z-10';
@@ -212,12 +215,36 @@ function create_entry_base(entry) {
     line_number.className = "kbd kbd-sm";
     line_number.innerText = entry.line;
     tool_tip.appendChild(line_number);
-    entry_title.appendChild(tool_tip);
+    controls_container.appendChild(tool_tip);
+
+    // Add edit button
+    const edit_button = document.createElement("button");
+    edit_button.className = "btn btn-md bg-primary-500 w-8 h-8 p-1 z-5";
+    edit_button.innerHTML = `
+        <img src="/static/img/edit.svg" alt="Edit" class="w-4 h-4" />
+    `;
+    edit_button.setAttribute('data-line', entry.line);
+    edit_button.setAttribute('data-user', entry.user || 'user');
+    edit_button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent collapse toggle
+
+        // Visual feedback - change button color temporarily
+        edit_button.style.backgroundColor = 'red';
+        setTimeout(() => {
+            edit_button.style.backgroundColor = '';
+        }, 500);
+
+        openEditEntryModal(entry);
+    });
+    controls_container.appendChild(edit_button);
+
+    entry_title.appendChild(controls_container);
     entry_base.appendChild(entry_title);
 
     const entry_content = document.createElement("div");
     entry_content.className = "collapse-content text-sm";
-    
+
     if (entry.error) {
         entry_content.innerText = 'Entry is malformed: ' + String(entry.error);
         entry_base.appendChild(entry_content);
@@ -227,7 +254,7 @@ function create_entry_base(entry) {
     // Create detailed cron information
     const cron_details = document.createElement("div");
     cron_details.className = "space-y-4 p-2";
-    
+
     // Command section
     const command_section = document.createElement("div");
     command_section.innerHTML = `
@@ -242,7 +269,7 @@ function create_entry_base(entry) {
         </div>
     `;
     cron_details.appendChild(command_section);
-    
+
     // Schedule section
     const schedule_section = document.createElement("div");
     schedule_section.innerHTML = `
@@ -276,7 +303,7 @@ function create_entry_base(entry) {
         </div>
     `;
     cron_details.appendChild(schedule_section);
-    
+
     // Human readable explanation
     const explanation_section = document.createElement("div");
     const human_readable = get_cron_explanation(entry);
@@ -292,7 +319,7 @@ function create_entry_base(entry) {
         </div>
     `;
     cron_details.appendChild(explanation_section);
-    
+
     // Error section (if exists)
     if (entry.error) {
         const error_section = document.createElement("div");
@@ -309,7 +336,7 @@ function create_entry_base(entry) {
         `;
         cron_details.appendChild(error_section);
     }
-    
+
     entry_content.appendChild(cron_details);
     entry_base.appendChild(entry_content);
 
@@ -322,6 +349,7 @@ function add_entries(data) {
         const user_container = document.getElementById("user_entries_container");
         user_container.innerText = "";
         for (let entry of user_entries) {
+            entry.user = 'user'; // Mark as user entry
             const entry_html = create_entry_base(entry);
             user_container.appendChild(entry_html);
         }
@@ -332,6 +360,7 @@ function add_entries(data) {
         const root_container = document.getElementById("root_entries_container");
         root_container.innerText = "";
         for (let entry of root_entries) {
+            entry.user = 'root'; // Mark as root entry
             const entry_html = create_entry_base(entry);
             root_container.appendChild(entry_html);
         }
@@ -387,7 +416,7 @@ function setupModalHandlers() {
         openNewEntryModal();
     });
 
-    // Handle quick template buttons
+    // Handle quick template buttons for new entry modal
     document.querySelectorAll('[data-schedule]').forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
@@ -396,21 +425,36 @@ function setupModalHandlers() {
         });
     });
 
-    // Handle form submission
+    // Handle quick template buttons for edit entry modal
+    document.querySelectorAll('.edit-schedule-template').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const schedule = e.target.getAttribute('data-schedule');
+            applyEditScheduleTemplate(schedule);
+        });
+    });
+
+    // Handle form submission for new entry
     form.addEventListener('submit', handleFormSubmission);
+
+    // Handle form submission for edit entry
+    const editForm = document.getElementById("edit_entry_form");
+    if (editForm) {
+        editForm.addEventListener('submit', handleEditFormSubmission);
+    }
 }
 
 function openNewEntryModal() {
     const modal = document.getElementById("new_entry_modal");
     const form = document.getElementById("new_entry_form");
-    
+
     // Update modal title based on entry type
     const title = modal.querySelector('h3');
     title.textContent = `Add New ${currentEntryType === 'user' ? 'User' : 'Root'} Cron Entry`;
-    
+
     // Reset form
     form.reset();
-    
+
     // Show modal
     modal.showModal();
 }
@@ -428,15 +472,15 @@ function applyScheduleTemplate(schedule) {
 
 async function handleFormSubmission(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(e.target);
     const submitButton = e.target.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
-    
+
     // Show loading state
     submitButton.textContent = 'Adding...';
     submitButton.disabled = true;
-    
+
     try {
         const entryData = {
             minute: formData.get('minute') || '*',
@@ -470,7 +514,7 @@ async function handleFormSubmission(e) {
         // Success - close modal and refresh entries
         document.getElementById("new_entry_modal").close();
         showToast('Entry added successfully!', 'success');
-        
+
         // Refresh the entries list
         await start_loading_sequence();
         const new_entries = await load_entries_json();
@@ -486,7 +530,6 @@ async function handleFormSubmission(e) {
         end_loading_sequence();
 
     } catch (error) {
-        console.error('Error adding entry:', error);
         showToast(error.message || 'Failed to add entry', 'error');
     } finally {
         // Reset button state
@@ -514,4 +557,118 @@ function showToast(message, type = 'info') {
             toast.remove();
         }
     }, 5000);
+}
+
+function openEditEntryModal(entry) {
+    const modal = document.getElementById("edit_entry_modal");
+    const form = document.getElementById("edit_entry_form");
+
+    if (!modal) {
+        return;
+    }
+
+    if (!form) {
+        return;
+    }
+
+    // Update modal title based on entry type
+    const title = modal.querySelector('h3');
+    title.textContent = `Edit ${entry.user === 'root' ? 'Root' : 'User'} Cron Entry`;
+
+    // Populate form fields with current entry data
+    document.getElementById('edit_line').value = entry.line;
+    document.getElementById('edit_root').value = entry.user === 'root' ? 'true' : 'false';
+    document.getElementById('edit_minute').value = entry.minute || '*';
+    document.getElementById('edit_hour').value = entry.hour || '*';
+    document.getElementById('edit_day_of_month').value = entry.day_of_month || '*';
+    document.getElementById('edit_month').value = entry.month || '*';
+    document.getElementById('edit_day_of_week').value = entry.day_of_week || '*';
+    document.getElementById('edit_command').value = entry.command || '';
+
+    // Show modal
+    modal.showModal();
+}
+
+function applyEditScheduleTemplate(schedule) {
+    const parts = schedule.split(' ');
+    if (parts.length === 5) {
+        document.getElementById('edit_minute').value = parts[0];
+        document.getElementById('edit_hour').value = parts[1];
+        document.getElementById('edit_day_of_month').value = parts[2];
+        document.getElementById('edit_month').value = parts[3];
+        document.getElementById('edit_day_of_week').value = parts[4];
+    }
+}
+
+async function handleEditFormSubmission(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+
+    // Disable submit button and show loading state
+    submitButton.textContent = 'Updating...';
+    submitButton.disabled = true;
+
+    try {
+        // Prepare entry data
+        const entryData = {
+            line: parseInt(formData.get('line')),
+            minute: formData.get('minute') || '*',
+            hour: formData.get('hour') || '*',
+            day_of_month: formData.get('day_of_month') || '*',
+            month: formData.get('month') || '*',
+            day_of_week: formData.get('day_of_week') || '*',
+            command: formData.get('command'),
+            root: formData.get('root') // This is already 'true' or 'false' string
+        };
+
+        // Validate command
+        if (!entryData.command.trim()) {
+            throw new Error('Command is required');
+        }
+
+        // Send to backend API
+        const response = await fetch('/api/entries/edit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(entryData)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Failed to update entry');
+        }
+
+        // Success - close modal and refresh entries
+        document.getElementById("edit_entry_modal").close();
+        showToast('Entry updated successfully!', 'success');
+
+        // Refresh the entries list
+        await start_loading_sequence();
+        const new_entries = await load_entries_json();
+        if (new_entries) {
+            const root_container = document.getElementById("root_entries_container");
+            root_container.innerHTML = "";
+
+            const user_container = document.getElementById("user_entries_container");
+            user_container.innerHTML = "";
+
+            add_entries(new_entries);
+        }
+        end_loading_sequence();
+
+    } catch (error) {
+        console.error('Error updating entry:', error);
+        showToast(error.message || 'Failed to update entry', 'error');
+    } finally {
+        // Reset button state
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+    }
 }
