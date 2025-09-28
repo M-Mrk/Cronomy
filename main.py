@@ -153,6 +153,10 @@ def api_change_entry():
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+def create_app():
+    """Application factory pattern for better deployment"""
+    return app
     
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
