@@ -32,7 +32,7 @@ def check_crontab():
 def complete_onboarding():
     env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
     with open(env_path, 'a') as file:
-        file.write('onboarded=True')
+        file.write('\nonboarded=True')
     load_dotenv()
 
 if __name__ == "__main__":
